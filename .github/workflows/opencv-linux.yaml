@@ -31,8 +31,6 @@ env:
     CONFIG_BUILD: ${{ github.event.inputs.build }}
     CONFIG_CPU: ${{ github.event.inputs.cpu }}
 
-    OPENCV_BUILD_CPU: 
-
     OPENCV_CODE_URL: https://github.com/opencv/opencv/archive/refs/tags/${{ github.event.inputs.version }}.zip
 
     OPENCV_DIR_NAME: opencv-${{ github.event.inputs.version }}
@@ -60,6 +58,7 @@ jobs:
               if: ${{ github.event.inputs.cpu }} == 'x86'
               run: |
                   OPENCV_BUILD_CPU='-DCMAKE_CXX_FLAGS=-m32 -DCMAKE_C_FLAGS=-m32'
+                  echo $OPENCV_BUILD_CPU
 
             - name: '配置项目'
               run: |
