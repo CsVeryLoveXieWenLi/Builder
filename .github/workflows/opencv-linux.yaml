@@ -57,7 +57,7 @@ jobs:
                   mkdir $OPENCV_DIR_NAME/build
 
             - name: '判断架构'
-              if: ${{ CONFIG_CPU }} == 'x86'
+              if: CONFIG_CPU == 'x86'
               run: |
                   OPENCV_BUILD_CPU='-DCMAKE_CXX_FLAGS=-m32 -DCMAKE_C_FLAGS=-m32'
 
