@@ -17,7 +17,7 @@ on:
 env:
    CODE_URL: https://github.com/opencv/opencv/archive/refs/tags/${{github.event.inputs.version}}.zip
    SHARE_LIBRARY: ${{github.event.inputs.library}}
-   DIR: opencv-${{github.event.inputs.version}}
+   CODE_DIR: opencv-${{github.event.inputs.version}}
 
 jobs:
 
@@ -32,7 +32,9 @@ jobs:
         run: unzip code.zip
 
       - name: '准备工作'
-        run: cd $DIR && mkdir build && cd build
+        working-directory: ${{CODE_DIR}}
+        run: mkdir build
 
       - name: '编译，启动！'
+        working-directory: ${{CODE_DIR}}/build
         run: cmake ..
