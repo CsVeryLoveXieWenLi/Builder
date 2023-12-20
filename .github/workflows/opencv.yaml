@@ -23,8 +23,11 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - name: '获取源码'
-        run: curl ${DOWNLOAD_URL} -o code.zip && mkdir temp && unzip -d ./temp code.zip
+      - name: '下载源码'
+        run: wget ${DOWNLOAD_URL} -O code.zip
+
+      - name: '解压源码'
+        run: unzip -d temp code.zip
 
       - name: '准备工作'
         run: cd temp && mkdir build && cd build
