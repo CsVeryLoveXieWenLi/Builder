@@ -49,12 +49,11 @@ jobs:
             
             - name: '下载源码'
               run: |
-                  curl $Env:OPENCV_CODE_URL -o code.zip
+                  curl $Env:OPENCV_CODE_URL -o .\code.zip
 
             - name: '解压源码'
               run: |
-                  Expand-Archive -Path code.zip -DestinationPath .
-                  rm code.zip
+                  Expand-Archive -Path .\code.zip -DestinationPath .
 
             - name: '创建目录'
               run: |
