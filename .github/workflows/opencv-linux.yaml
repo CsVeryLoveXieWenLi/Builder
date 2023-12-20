@@ -59,7 +59,7 @@ jobs:
             - name: '判断架构'
               if: ${{ CONFIG_CPU }} == 'x86'
               run: |
-                  OPENCV_BUILD_CPU=-DCMAKE_CXX_FLAGS=-m32 -DCMAKE_C_FLAGS=-m32
+                  OPENCV_BUILD_CPU='-DCMAKE_CXX_FLAGS=-m32 -DCMAKE_C_FLAGS=-m32'
 
             - name: '配置项目'
               run: |
