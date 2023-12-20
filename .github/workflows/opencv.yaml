@@ -22,18 +22,15 @@ jobs:
   build:
     runs-on: ubuntu-18.04
 
-    steps1:
+    steps:
       - name: "准备工作"
         run: apt update && apt upgrade && apt install unzip -y && apt install cmake -y
 
-    steps2:
       - name: "获取源码"
         run: curl ${DOWNLOAD_URL} -o code.zip && mkdir temp && unzip -d ./temp code.zip
 
-    steps3:
       - name: "准备编译"
         run: cd temp && mkdir build && cd build
 
-    steps4:
       - name: "编译"
         run: cmake ..
