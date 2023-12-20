@@ -25,9 +25,9 @@ env:
     CONFIG_LIBRARY: ${{ github.event.inputs.library }}
     CONFIG_BUILD: ${{ github.event.inputs.build }}
 
-    OPENCV_CODE_URL: https://github.com/opencv/opencv/archive/refs/tags/${{ CONFIG_VERSION }}.zip
+    OPENCV_CODE_URL: https://github.com/opencv/opencv/archive/refs/tags/${{ github.event.inputs.version }}.zip
 
-    OPENCV_DIR_NAME: opencv-${{ CONFIG_VERSION }}
+    OPENCV_DIR_NAME: opencv-${{ github.event.inputs.version }}
 
 jobs:
 
