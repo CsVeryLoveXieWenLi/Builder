@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: '下载源码'
-        run: wget $DOWNLOAD_URL -O code.zip
+        run: 'wget ${DOWNLOAD_URL} -O code.zip'
 
       - name: '解压源码'
         run: unzip -d temp code.zip
