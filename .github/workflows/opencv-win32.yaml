@@ -53,8 +53,8 @@ jobs:
 
             - name: '解压源码'
               run: |
-                  ls
-                  Expand-Archive -LiteralPath code.zip -DestinationPath code
+                  Expand-Archive -LiteralPath code.zip
+                  rm code.zip
 
             - name: '创建目录'
               run: |
