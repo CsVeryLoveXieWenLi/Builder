@@ -1,55 +1,67 @@
-name: 编译-Opencv
+name: 编译-Opencv-Linux
 
 on:
-  workflow_dispatch:
-   inputs:
+    workflow_dispatch:
+        inputs:
 
-      version:
-        description: '源码版本'
-        required: true
-        default: '4.8.1'
+            version:
+                description: '源码版本'
+                required: true
+                default: '4.8.1'
 
-      build:
-        description: '发布版本'
-        required: true
-        default: 'Release'
+            build:
+                description: '发布版本'
+                required: true
+                default: 'Release'
 
-      library:
-        description: '是否编译动态库'
-        required: true
-        default: 'OFF'
+            library:
+                description: '是否编译动态库'
+                required: true
+                default: 'OFF'
 
 env:
-   CODE_URL: https://github.com/opencv/opencv/archive/refs/tags/${{github.event.inputs.version}}.zip
-   SHARE_LIBRARY: ${{github.event.inputs.library}}
-   CODE_DIR: opencv-${{github.event.inputs.version}}
-   BUILD_TYPE: ${{github.event.inputs.build}}
+
+    CONFIG_VERSION: ${{ github.event.inputs.version }}
+    CONFIG_LIBRARY: ${{ github.event.inputs.library }}
+    CONFIG_BUILD: ${{ github.event.inputs.build }}
+
+    OPENCV_CODE_URL: https://github.com/opencv/opencv/archive/refs/tags/${{ CONFIG_VERSION }}.zip
+
+    OPENCV_DIR_NAME: opencv-${{ CONFIG_VERSION }}
 
 jobs:
 
-  build:
-    runs-on: ubuntu-20.04
+    build:
+        runs-on: ubuntu-20.04
 
-    steps:
-      - name: '下载源码'
-        run: wget $CODE_URL -O code.zip
+        steps:
+            - name: '下载源码'
+              run: |
+                  wget $OPENCV_CODE_URL -O code.zip
 
-      - name: '解压源码'
-        run: unzip code.zip
+            - name: '解压源码'
+              run: |
+                  unzip code.zip
+                  rm code.zip
 
-      - name: '准备工作'
-        run: mkdir $CODE_DIR/build
+            - name: '创建目录'
+              run: |
+                  mkdir $OPENCV_DIR_NAME/build
 
-      - name: '编译，启动！'
-        run: |
-            cd $CODE_DIR/build
-            cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_SHARED_LIBS=$SHARE_LIBRARY -DBUILD_TESTS=OFF -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TIFF=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=ON -DBUILD_OPENJPEG=ON -DBUILD_WEBP=ON -DBUILD_PNG=ON -DBUILD_OPENCV_ITTNOTIFY=OFF -DBUILD_ITT=OFF -DBUILD_ZLIB=OFF -DBUILD_OPENEXR=OFF -DBUILD_OPENCV_JAVA=OFF -DBUILD_OPENCV_PYTHON=OFF -DBUILD_OPENCV_TS=OFF -DBUILD_OPENCV_VIDEO=OFF -DBUILD_OPENCV_DNN=OFF -DBUILD_OPENCV_VIDEOSTAB=OFF -DBUILD_OPENCV_PHOTO=OFF -DBUILD_OPENCV_GPU=OFF -DBUILD_OPENCV_FLANN=OFF -DBUILD_OPENCV_FEATURES2D=OFF -DBUILD_OPENCV_ML=OFF -DBUILD_OPENCV_APPS=OFF -DBUILD_OPENCV_CALIB3D=OFF -DBUILD_OPENCV_STITCHING=OFF -DBUILD_OPENCV_SUPERRES=OFF -DBUILD_OPENCV_NONFREE=OFF -DBUILD_OPENCV_OBJDETECT=OFF -DBUILD_OPENCV_CONTRIB=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DWITH_QT=OFF -DWITH_1394=OFF -DWITH_FFMPEG=OFF -DWITH_GTK=OFF -DWITH_VTK=OFF -DWITH_FFMPEG=OFF -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_QUIRC=OFF -DWITH_MSMF=OFF -DWITH_GSTREAMER=OFF -DWITH_V4L=OFF -DBUILD_TBB=OFF -DWITH_HPX=OFF -DWITH_OPENMP=ON -DWITH_PTHREADS_PF=OFF -DPARALLEL_ENABLE_PLUGINS=OFF -DVIDEOIO_ENABLE_PLUGINS=OFF -DHIGHGUI_ENABLE_PLUGINS=OFF -DBUILD_OPENCV_WORLD=OFF -DCMAKE_INSTALL_PREFIX=../../temp ..
-            make install -j8
-            cd ../../
-            zip -r artifact.zip temp
+            - name: '配置项目'
+              run: |
+                  cd $OPENCV_DIR_NAME
+                  cd build
+                  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTS=OFF -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TIFF=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=ON -DBUILD_OPENJPEG=ON -DBUILD_WEBP=ON -DBUILD_PNG=ON -DBUILD_OPENCV_ITTNOTIFY=OFF -DBUILD_ITT=OFF -DBUILD_ZLIB=OFF -DBUILD_OPENEXR=OFF -DBUILD_OPENCV_JAVA=OFF -DBUILD_OPENCV_PYTHON=OFF -DBUILD_OPENCV_TS=OFF -DBUILD_OPENCV_VIDEO=OFF -DBUILD_OPENCV_DNN=OFF -DBUILD_OPENCV_VIDEOSTAB=OFF -DBUILD_OPENCV_PHOTO=OFF -DBUILD_OPENCV_GPU=OFF -DBUILD_OPENCV_FLANN=OFF -DBUILD_OPENCV_FEATURES2D=OFF -DBUILD_OPENCV_ML=OFF -DBUILD_OPENCV_APPS=OFF -DBUILD_OPENCV_CALIB3D=OFF -DBUILD_OPENCV_STITCHING=OFF -DBUILD_OPENCV_SUPERRES=OFF -DBUILD_OPENCV_NONFREE=OFF -DBUILD_OPENCV_OBJDETECT=OFF -DBUILD_OPENCV_CONTRIB=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DWITH_QT=OFF -DWITH_1394=OFF -DWITH_FFMPEG=OFF -DWITH_GTK=OFF -DWITH_VTK=OFF -DWITH_FFMPEG=OFF -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_QUIRC=OFF -DWITH_MSMF=OFF -DWITH_GSTREAMER=OFF -DWITH_V4L=OFF -DBUILD_TBB=OFF -DWITH_HPX=OFF -DWITH_OPENMP=ON -DWITH_PTHREADS_PF=OFF -DPARALLEL_ENABLE_PLUGINS=OFF -DVIDEOIO_ENABLE_PLUGINS=OFF -DHIGHGUI_ENABLE_PLUGINS=OFF -DBUILD_OPENCV_WORLD=OFF -DCMAKE_INSTALL_PREFIX=../../install ..
 
-      - name: '编译，完成！'
-        uses: actions/upload-artifact@v4.0.0
-        with:
-          name: 编译好的文件
-          path: ${{github.workspace}}/artifact.zip
+            - name: '编译，启动！'
+              run: |
+                  cd $OPENCV_DIR_NAME
+                  cd build
+                  make install -j8
+
+            - name: '编译，完成！'
+              uses: actions/upload-artifact@v4.0.0
+              with:
+                  name: 任务完成
+                  path: ${{ github.workspace }}/install
