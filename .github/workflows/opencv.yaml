@@ -15,7 +15,7 @@ on:
         default: 'OFF'
 
 env:
-   DOWNLOAD_URL: https://github.com/opencv/opencv/archive/refs/tags/${{INPUT_VERSION}}.zip
+   DOWNLOAD_URL: https://github.com/opencv/opencv/archive/refs/tags/$INPUT_VERSION.zip
 
 jobs:
 
