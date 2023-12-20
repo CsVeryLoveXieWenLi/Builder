@@ -63,5 +63,5 @@ jobs:
             - name: '编译，完成！'
               uses: actions/upload-artifact@v4.0.0
               with:
-                  name: 任务完成
+                  name: 编译-Opencv-Linux
                   path: ${{ github.workspace }}/install
