@@ -20,8 +20,8 @@ env:
 jobs:
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
 
     steps:
       - name: "准备工作"
-        run: apt update && apt upgrade && apt install unzip -y && apt install cmake -y
+        run: cmake ..
