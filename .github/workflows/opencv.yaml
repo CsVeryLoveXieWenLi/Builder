@@ -17,6 +17,7 @@ on:
 env:
    CODE_URL: https://github.com/opencv/opencv/archive/refs/tags/${{github.event.inputs.version}}.zip
    SHARE_LIBRARY: ${{github.event.inputs.library}}
+   DIR: opencv-${{github.event.inputs.version}}
 
 jobs:
 
@@ -28,10 +29,10 @@ jobs:
         run: wget $CODE_URL -O code.zip
 
       - name: '解压源码'
-        run: unzip -d temp code.zip
+        run: unzip code.zip
 
       - name: '准备工作'
-        run: cd temp && mkdir build && cd build
+        run: cd $DIR && mkdir build && cd build
 
       - name: '编译，启动！'
         run: cmake ..
