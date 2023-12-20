@@ -20,17 +20,8 @@ env:
 jobs:
 
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: "准备工作"
         run: apt update && apt upgrade && apt install unzip -y && apt install cmake -y
-
-      - name: "获取源码"
-        run: curl ${DOWNLOAD_URL} -o code.zip && mkdir temp && unzip -d ./temp code.zip
-
-      - name: "准备编译"
-        run: cd temp && mkdir build && cd build
-
-      - name: "编译"
-        run: cmake ..
