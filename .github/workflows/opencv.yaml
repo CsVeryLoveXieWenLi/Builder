@@ -1,7 +1,7 @@
 name: Opencv
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
    inputs:
 
       version:
