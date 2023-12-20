@@ -32,9 +32,7 @@ jobs:
         run: unzip code.zip
 
       - name: '准备工作'
-        working-directory: ${{CODE_DIR}}
-        run: mkdir build
+        run: mkdir $CODE_DIR/build
 
       - name: '编译，启动！'
-        working-directory: ${{CODE_DIR}}/build
-        run: cmake ..
+        run: cd $CODE_DIR/build && cmake ..
