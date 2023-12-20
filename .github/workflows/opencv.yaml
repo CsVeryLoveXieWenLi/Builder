@@ -49,7 +49,7 @@ jobs:
             zip -r artifact.zip temp
 
       - name: '编译，完成！'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4.0.0
         with:
           name: 编译好的文件
           path: ${{github.workspace}}/artifact.zip
