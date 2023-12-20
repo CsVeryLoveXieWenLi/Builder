@@ -14,6 +14,9 @@ on:
         required: true
         default: 'OFF'
 
+env:
+   DOWNLOAD_URL: https://github.com/opencv/opencv/archive/refs/tags/${{INPUT_VERSION}}.zip
+
 jobs:
 
   build:
@@ -21,7 +24,7 @@ jobs:
 
     steps:
       - name: '下载源码'
-        run: wget https://github.com/opencv/opencv/archive/refs/tags/$INPUT_VERSION.zip -O code.zip
+        run: wget $DOWNLOAD_URL -O code.zip
 
       - name: '解压源码'
         run: unzip -d temp code.zip
