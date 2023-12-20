@@ -12,7 +12,7 @@ on:
       library:
         description: '是否编译动态库'
         required: true
-        default: false
+        default: 'OFF'
 
 env:
    DOWNLOAD_URL: https://github.com/opencv/opencv/archive/refs/tags/${INPUT_VERSION}.zip
@@ -26,7 +26,7 @@ jobs:
       - name: "准备工作"
         run: apt update && apt upgrade && apt install unzip -y && apt install cmake -y
 
-    steps1:
+    steps2:
       - name: "获取源码"
         run: curl ${DOWNLOAD_URL} -o code.zip && mkdir temp && unzip -d ./temp code.zip
 
