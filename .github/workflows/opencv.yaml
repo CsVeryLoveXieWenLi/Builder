@@ -24,7 +24,10 @@ jobs:
 
     steps:
       - name: '下载源码'
-        run: wget "https://github.com/opencv/opencv/archive/refs/tags/$INPUT_VERSION.zip" -O code.zip
+        run: echo $INPUT_VERSION
+
+      - name: '下载源码'
+        run: wget "https://github.com/opencv/opencv/archive/refs/tags/.zip" -O code.zip
 
       - name: '解压源码'
         run: unzip -d temp code.zip
