@@ -1,0 +1,63 @@
+name: 编译-Ort-Windows-X64
+
+on:
+    workflow_dispatch:
+        inputs:
+
+            version:
+                description: '源码版本'
+                required: true
+                default: '1.16.3'
+
+            build:
+                description: '发布版本'
+                required: true
+                default: 'Release'
+
+            library:
+                description: '动态或是静态'
+                required: true
+                default: '--build_shared_lib'
+
+env:
+
+    CONFIG_VERSION: ${{ github.event.inputs.version }}
+    CONFIG_BUILD: ${{ github.event.inputs.build }}
+    CONFIG_LIBRARY: ${{ github.event.inputs.library }}
+
+jobs:
+
+    build:
+        runs-on: windows-2022
+
+        steps:
+            - name: '安装环境 Cmake'
+              uses: jwlawson/actions-setup-cmake@v1.14.2
+            
+            - name: '拉取源码'
+              run: |
+                  git clone -b rel-$Env:CONFIG_VERSION --recursive https://github.com/Microsoft/onnxruntime
+
+            - name: '更新源码'
+              run: |
+                  cd onnxruntime
+                  git submodule update --init --recursive
+
+            - name: '编译，启动！'
+              run: |
+                  cd onnxruntime
+                  .\build.bat \
+                  --config $Env:CONFIG_BUILD \
+                  --build_dir install \
+                  $Env:CONFIG_LIBRARY \
+                  --minimal_build
+                  --update \
+                  --skip_tests \
+                  --parallel \
+                  --build
+
+            - name: '编译，完成！'
+              uses: actions/upload-artifact@v4.0.0
+              with:
+                  name: 编译-Ort-Windows-X64
+                  path: ${{ github.workspace }}/onnxruntime/install/
