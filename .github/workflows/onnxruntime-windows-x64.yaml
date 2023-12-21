@@ -47,14 +47,7 @@ jobs:
               run: |
                   cd onnxruntime
                   
-                  .\build.bat \
-                  --config $Env:CONFIG_BUILD \
-                  --build_dir install \
-                  $Env:CONFIG_LIBRARY \
-                  --update \
-                  --skip_tests \
-                  --parallel \
-                  --build
+                  .\build.bat --config $Env:CONFIG_BUILD --build_dir install $Env:CONFIG_LIBRARY --update --skip_tests --parallel --build
                   
                   cd install/Release
                   cmake --install .
