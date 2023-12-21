@@ -31,10 +31,6 @@ env:
     CONFIG_BUILD: ${{ github.event.inputs.build }}
     CONFIG_CPU: ${{ github.event.inputs.cpu }}
 
-    ONNXRUNTIME_CODE_URL: https://github.com/microsoft/onnxruntime/archive/refs/tags/v${{ github.event.inputs.version }}.zip
-
-    ONNXRUNTIME_DIR_NAME: onnxruntime-${{ github.event.inputs.version }}
-
 jobs:
 
     build:
@@ -44,23 +40,22 @@ jobs:
             - name: '安装环境 Cmake'
               uses: jwlawson/actions-setup-cmake@v1.14.2
             
-            - name: '下载源码'
+            - name: '拉取源码'
               run: |
-                  Invoke-RestMethod -Uri $Env:ONNXRUNTIME_CODE_URL -OutFile code.zip
+                  git clone -b rel-$Env:CONFIG_VERSION --recursive https://github.com/Microsoft/onnxruntime
 
-            - name: '解压源码'
+            - name: '更新源码'
               run: |
-                  Expand-Archive -LiteralPath code.zip -DestinationPath temp -PassThru
-                  rm code.zip
+                  cd onnxruntime
+                  git submodule update --init --recursive
 
             - name: '编译，启动！'
               run: |
-                  cd temp
-                  cd $Env:ONNXRUNTIME_DIR_NAME
-                  .\build.bat --update --config Release --skip_tests --parallel
+                  cd onnxruntime
+                  .\build.bat --update --config $Env:CONFIG_BUILD --skip_tests --parallel
 
             - name: '编译，完成！'
               uses: actions/upload-artifact@v4.0.0
               with:
                   name: 编译-Onnxruntime-Win32
-                  path: ${{ github.workspace }}/temp/$Env:ONNXRUNTIME_DIR_NAME/build
+                  path: ${{ github.workspace }}/onnxruntime/build
