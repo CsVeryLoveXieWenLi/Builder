@@ -1,6 +1,6 @@
 ## 川上的编译项目
 
-- **Opencv Linux (X64/X86)**
+- **Opencv Linux (X64)**
 
 - **Onnxruntime Windows (X64/X86)**
 
