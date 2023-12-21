@@ -52,8 +52,8 @@ jobs:
             - name: '编译，启动！'
               run: |
                   cd onnxruntime
-                  ls build\Windows\$Env:CONFIG_BUILD\
                   .\build.bat --update --config $Env:CONFIG_BUILD --skip_tests --parallel
+                  ls build\Windows\$Env:CONFIG_BUILD\
 
             - name: '编译，完成！'
               uses: actions/upload-artifact@v4.0.0
