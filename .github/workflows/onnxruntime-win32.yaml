@@ -52,6 +52,7 @@ jobs:
             - name: '编译，启动！'
               run: |
                   cd onnxruntime
+                  ls build\Windows\$Env:CONFIG_BUILD\
                   .\build.bat --update --config $Env:CONFIG_BUILD --skip_tests --parallel
 
             - name: '编译，完成！'
