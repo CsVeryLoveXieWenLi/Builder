@@ -5,19 +5,19 @@ on:
         inputs:
 
             version:
-                description: '源码版本 (Search)'
+                description: '源码版本'
                 required: true
                 default: '4.8.1'
 
             build:
-                description: '发布版本 (Release Debug MinSizeRel RelWithDebInfo)'
+                description: '发布版本'
                 required: true
                 default: 'Release'
 
             library:
-                description: '动态或是静态 (OFF ON)'
+                description: '动态或是静态'
                 required: true
-                default: 'OFF'
+                default: 'ON'
 
 env:
 
