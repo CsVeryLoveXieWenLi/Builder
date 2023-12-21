@@ -10,7 +10,7 @@ on:
                 default: '1.16.3'
 
             build:
-                description: '发布版本 (Release Debug)'
+                description: '发布版本 (Release Debug MinSizeRel RelWithDebInfo)'
                 required: true
                 default: 'Release'
 
@@ -58,4 +58,4 @@ jobs:
               uses: actions/upload-artifact@v4.0.0
               with:
                   name: 编译-Onnxruntime-Win32
-                  path: ${{ github.workspace }}/onnxruntime/build
+                  path: ${{ github.workspace }}/onnxruntime/build/Windows/${{ $Env:CONFIG_VERSION }}
