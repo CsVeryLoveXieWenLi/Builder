@@ -1,4 +1,4 @@
-name: 编译-Opencv-Linux
+name: 编译-Opencv-Linux-X64
 
 on:
     workflow_dispatch:
@@ -15,21 +15,15 @@ on:
                 default: 'Release'
 
             library:
-                description: '是否编译动态库 (OFF ON)'
+                description: '动态或是静态 (OFF ON)'
                 required: true
                 default: 'OFF'
-
-            cpu:
-                description: '生成架构 (x64 || x86)'
-                required: true
-                default: 'x64'
 
 env:
 
     CONFIG_VERSION: ${{ github.event.inputs.version }}
     CONFIG_LIBRARY: ${{ github.event.inputs.library }}
     CONFIG_BUILD: ${{ github.event.inputs.build }}
-    CONFIG_CPU: ${{ github.event.inputs.cpu }}
 
     OPENCV_CODE_URL: https://github.com/opencv/opencv/archive/refs/tags/${{ github.event.inputs.version }}.zip
 
@@ -69,5 +63,5 @@ jobs:
             - name: '编译，完成！'
               uses: actions/upload-artifact@v4.0.0
               with:
-                  name: 编译-Opencv-Linux
+                  name: 编译-Opencv-Linux-X64
                   path: ${{ github.workspace }}/install
