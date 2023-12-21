@@ -1,35 +1,29 @@
-name: 编译-Onnxruntime-Win32
+name: 编译-Onnxruntime-Windows-X64
 
 on:
     workflow_dispatch:
         inputs:
 
             version:
-                description: '源码版本 (Search)'
+                description: '源码版本'
                 required: true
                 default: '1.16.3'
 
             build:
-                description: '发布版本 (Release Debug MinSizeRel RelWithDebInfo)'
+                description: '发布版本'
                 required: true
                 default: 'Release'
 
             library:
-                description: '是否编译动态库 (OFF ON)'
+                description: '动态或是静态'
                 required: true
-                default: 'OFF'
-
-            cpu:
-                description: '生成架构 (x64 || win32)'
-                required: true
-                default: 'x64'
+                default: '--build_shared_lib'
 
 env:
 
     CONFIG_VERSION: ${{ github.event.inputs.version }}
-    CONFIG_LIBRARY: ${{ github.event.inputs.library }}
     CONFIG_BUILD: ${{ github.event.inputs.build }}
-    CONFIG_CPU: ${{ github.event.inputs.cpu }}
+    CONFIG_LIBRARY: ${{ github.event.inputs.library }}
 
 jobs:
 
@@ -52,10 +46,17 @@ jobs:
             - name: '编译，启动！'
               run: |
                   cd onnxruntime
-                  .\build.bat --config $Env:CONFIG_BUILD --build_dir install --update --skip_tests --parallel --build
+                  .\build.bat \
+                  --config $Env:CONFIG_BUILD \
+                  --build_dir install \
+                  $Env:CONFIG_LIBRARY \
+                  --update \
+                  --skip_tests \
+                  --parallel \
+                  --build
 
             - name: '编译，完成！'
               uses: actions/upload-artifact@v4.0.0
               with:
-                  name: 编译-Onnxruntime-Win32
-                  path: ${{ github.workspace }}/onnxruntime/install/${{ github.event.inputs.build }}/${{ github.event.inputs.build }}/
+                  name: 编译-Onnxruntime-Windows-X64
+                  path: ${{ github.workspace }}/onnxruntime/install/
