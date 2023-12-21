@@ -57,7 +57,7 @@ jobs:
               run: |
                   cd temp
                   cd $Env:ONNXRUNTIME_DIR_NAME
-                  .\build.bat --update --config Release --skip_tests --parallel --use_openmp
+                  .\build.bat --update --config Release --skip_tests --parallel
 
             - name: '编译，完成！'
               uses: actions/upload-artifact@v4.0.0
