@@ -31,7 +31,7 @@ env:
     CONFIG_BUILD: ${{ github.event.inputs.build }}
     CONFIG_CPU: ${{ github.event.inputs.cpu }}
 
-    ONNXRUNTIME_CODE_URL: https://github.com/microsoft/onnxruntime/archive/refs/tags/${{ github.event.inputs.version }}.zip
+    ONNXRUNTIME_CODE_URL: https://github.com/microsoft/onnxruntime/archive/refs/tags/v${{ github.event.inputs.version }}.zip
 
     ONNXRUNTIME_DIR_NAME: onnxruntime-${{ github.event.inputs.version }}
 
