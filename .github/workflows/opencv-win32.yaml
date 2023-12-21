@@ -10,7 +10,7 @@ on:
                 default: '4.8.1'
 
             build:
-                description: '发布版本 (Release DEBUG)'
+                description: '发布版本 (Release Debug MinSizeRel RelWithDebInfo)'
                 required: true
                 default: 'Release'
 
