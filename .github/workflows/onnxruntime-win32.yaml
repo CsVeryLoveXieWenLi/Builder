@@ -58,4 +58,4 @@ jobs:
               uses: actions/upload-artifact@v4.0.0
               with:
                   name: 编译-Onnxruntime-Win32
-                  path: ${{ github.workspace }}/onnxruntime/install/onnxruntime_*
+                  path: ${{ github.workspace }}/onnxruntime/install/${{ CONFIG_BUILD }}/${{ CONFIG_BUILD }}/
