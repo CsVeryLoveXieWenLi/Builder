@@ -7,7 +7,7 @@ on:
             version:
                 description: '源码版本 (Search)'
                 required: true
-                default: '1.12.1'
+                default: '1.16.3'
 
             build:
                 description: '发布版本 (Release Debug)'
@@ -57,7 +57,8 @@ jobs:
               run: |
                   cd temp
                   cd $Env:ONNXRUNTIME_DIR_NAME
-                  build.bat --config $CONFIG_BUILD --skip_tests --parallel
+                  ls
+                  .\build.bat --config $CONFIG_BUILD --skip_tests --parallel
 
             - name: '编译，完成！'
               uses: actions/upload-artifact@v4.0.0
