@@ -16,7 +16,7 @@ on:
 
             library:
                 description: '动态或是静态'
-                required: true
+                required: false
                 default: '--build_shared_lib'
 
 env:
