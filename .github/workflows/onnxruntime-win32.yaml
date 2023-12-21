@@ -52,18 +52,10 @@ jobs:
             - name: '编译，启动！'
               run: |
                   cd onnxruntime
-                  .\build.bat --update --config $Env:CONFIG_BUILD --skip_tests --parallel
-                  cd build
-                  ls
-                  cd Windows
-                  ls
-                  cd $Env:CONFIG_BUILD
-                  ls
-                  cd lib
-                  ls
+                  .\build.bat --config $Env:CONFIG_BUILD --build_dir install --update --skip_tests --parallel --build
 
             - name: '编译，完成！'
               uses: actions/upload-artifact@v4.0.0
               with:
                   name: 编译-Onnxruntime-Win32
-                  path: ${{ github.workspace }}/onnxruntime/build/Windows/${{ github.event.inputs.build }}/onnxruntime_*
+                  path: ${{ github.workspace }}/onnxruntime/install/onnxruntime_*
