@@ -50,7 +50,7 @@ jobs:
                   --config $Env:CONFIG_BUILD \
                   --build_dir install \
                   $Env:CONFIG_LIBRARY \
-                  --minimal_build
+                  --minimal_build \
                   --update \
                   --skip_tests \
                   --parallel \
