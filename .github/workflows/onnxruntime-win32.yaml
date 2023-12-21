@@ -1,1 +1,80 @@
+name: 编译-Onnxruntime-Win32
 
+on:
+    workflow_dispatch:
+        inputs:
+
+            version:
+                description: '源码版本 (Search)'
+                required: true
+                default: '1.12.1'
+
+            build:
+                description: '发布版本 (Release Debug)'
+                required: true
+                default: 'Release'
+
+            library:
+                description: '是否编译动态库 (OFF ON)'
+                required: true
+                default: 'OFF'
+
+            cpu:
+                description: '生成架构 (x64 || win32)'
+                required: true
+                default: 'x64'
+
+env:
+
+    CONFIG_VERSION: ${{ github.event.inputs.version }}
+    CONFIG_LIBRARY: ${{ github.event.inputs.library }}
+    CONFIG_BUILD: ${{ github.event.inputs.build }}
+    CONFIG_CPU: ${{ github.event.inputs.cpu }}
+
+    ONNXRUNTIME_CODE_URL: https://github.com/microsoft/onnxruntime/archive/refs/tags/${{ github.event.inputs.version }}.zip
+
+    ONNXRUNTIME_DIR_NAME: onnxruntime-${{ github.event.inputs.version }}
+
+jobs:
+
+    build:
+        runs-on: windows-2019
+
+        steps:
+            - name: '安装环境 Cmake'
+              uses: jwlawson/actions-setup-cmake@v1.14.2
+            
+            - name: '下载源码'
+              run: |
+                  Invoke-RestMethod -Uri $Env:ONNXRUNTIME_CODE_URL -OutFile code.zip
+
+            - name: '解压源码'
+              run: |
+                  Expand-Archive -LiteralPath code.zip -DestinationPath temp -PassThru
+                  rm code.zip
+
+            - name: '创建目录'
+              run: |
+                  cd temp
+                  mkdir $Env:ONNXRUNTIME_DIR_NAME\build
+                  mkdir install
+
+            - name: '配置项目'
+              run: |
+                  cd temp
+                  cd $Env:ONNXRUNTIME_DIR_NAME
+                  cd build
+                  cmake -A "$Env:CONFIG_CPU" -DCMAKE_BUILD_TYPE=$Env:CONFIG_BUILD -DBUILD_SHARED_LIBS=$Env:CONFIG_LIBRARY -DBUILD_TESTS=OFF -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TIFF=OFF -DBUILD_JASPER=OFF -DBUILD_JPEG=ON -DBUILD_OPENJPEG=ON -DBUILD_WEBP=ON -DBUILD_PNG=ON -DBUILD_opencv_ittnotify=OFF -DBUILD_ITT=OFF -DBUILD_ZLIB=OFF -DBUILD_OPENEXR=OFF -DBUILD_opencv_java=OFF -DBUILD_opencv_python=OFF -DBUILD_opencv_ts=OFF -DBUILD_opencv_video=OFF -DBUILD_opencv_dnn=OFF -DBUILD_opencv_videostab=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_gpu=OFF -DBUILD_opencv_flann=OFF -DBUILD_opencv_features2d=OFF -DBUILD_opencv_ml=OFF -DBUILD_opencv_apps=OFF -DBUILD_opencv_calib3d=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_nonfree=OFF -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_contrib=OFF -DBUILD_opencv_gapi=OFF -DBUILD_opencv_highgui=OFF -DBUILD_opencv_videoio=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DWITH_QT=OFF -DWITH_1394=OFF -DWITH_FFMPEG=OFF -DWITH_GTK=OFF -DWITH_VTK=OFF -DWITH_FFMPEG=OFF -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_QUIRC=OFF -DWITH_MSMF=OFF -DWITH_GSTREAMER=OFF -DWITH_V4L=OFF -DWITH_ADE=OFF -DWITH_IPP=OFF -DPARALLEL_ENABLE_PLUGINS=OFF -DVIDEOIO_ENABLE_PLUGINS=OFF -DHIGHGUI_ENABLE_PLUGINS=OFF -DBUILD_opencv_world=OFF -DCMAKE_INSTALL_PREFIX="..\..\install" ..
+
+            - name: '编译，启动！'
+              run: |
+                  cd temp
+                  cd $Env:ONNXRUNTIME_DIR_NAME
+                  cd build
+                  msbuild ALL_BUILD.vcxproj /maxcpucount:2
+
+            - name: '编译，完成！'
+              uses: actions/upload-artifact@v4.0.0
+              with:
+                  name: 编译-Onnxruntime-Win32
+                  path: ${{ github.workspace }}/temp/install
