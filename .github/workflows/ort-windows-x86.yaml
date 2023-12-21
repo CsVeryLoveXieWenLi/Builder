@@ -46,16 +46,11 @@ jobs:
             - name: '编译，启动！'
               run: |
                   cd onnxruntime
-                  .\build.bat \
-                  --config $Env:CONFIG_BUILD \
-                  --build_dir install \
-                  $Env:CONFIG_LIBRARY \
-                  --minimal_build \
-                  --x86 \
-                  --update \
-                  --skip_tests \
-                  --parallel \
-                  --build
+
+                  .\build.bat --config $Env:CONFIG_BUILD --build_dir install $Env:CONFIG_LIBRARY --x86 --minimal_build --update --skip_tests --parallel --build
+
+                  cd install/Release
+                  cmake --install .
 
             - name: '编译，完成！'
               uses: actions/upload-artifact@v4.0.0
