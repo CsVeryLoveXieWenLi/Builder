@@ -31,5 +31,11 @@ jobs:
         repository: opencv/opencv
         ref: ${{ env.OPENCV_VERSION }}
 
+    - name: 创建Cmake临时文件夹
+      run: mkdir build
+
+    - name: 修复Openjpeg库
+      run: sed -i 's/define OPJ_API    __attribute__ ((visibility ("hidden")))/define OPJ_API    __attribute__ ((visibility ("default")))/g' 3rdparty/openjpeg/openjp2/openjpeg.h
+
     - name: 测试
-      run: cd .. && ls
+      run: cat 3rdparty/openjpeg/openjp2/openjpeg.h
