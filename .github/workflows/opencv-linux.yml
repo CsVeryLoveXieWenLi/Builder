@@ -32,4 +32,4 @@ jobs:
         ref: ${{ env.OPENCV_VERSION }}
 
     - name: 测试
-      run: ls
+      run: cd .. && ls
