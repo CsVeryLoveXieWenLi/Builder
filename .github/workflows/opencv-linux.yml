@@ -18,7 +18,7 @@ jobs:
 
     steps:
     - name: 安装Cmake
-      uses: jwlawson/actions-setup-cmake@latest
+      uses: jwlawson/actions-setup-cmake
       with:
         cmake-version: "latest"
 
@@ -26,7 +26,7 @@ jobs:
       run: cmake --version
 
     - name: 检出Opencv源代码
-      uses: actions/checkout@latest
+      uses: actions/checkout
       with:
         repository: opencv/opencv
         ref: ${{ env.OPENCV_VERSION }}
