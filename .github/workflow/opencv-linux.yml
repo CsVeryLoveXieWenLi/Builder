@@ -1,0 +1,35 @@
+﻿# Opencv Linux
+
+name: opencv-linux
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "版本号"
+        required: true
+
+env:
+  OPENCV_VERSION: ${{ github.event.inputs.version }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+  steps:
+    - name: 安装Cmake
+      uses: jwlawson/actions-setup-cmake@latest
+      with:
+        cmake-version: "latest"
+
+    - name: 测试CMake
+      run: cmake --version
+
+    - name: 检出Opencv源代码
+      uses: actions/checkout@latest
+      with:
+        repository: opencv/opencv
+        ref: ${{ env.OPENCV_VERSION }}
+
+    - name: 测试
+      run: ls
