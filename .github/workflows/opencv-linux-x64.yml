@@ -42,11 +42,13 @@ jobs:
 
     - name: build
       run: |
+        cd build
         make -j4
         make install
 
     - name: compress
       run: |
+        cd build
         cd install
 
         mv include/opencv4/opencv2 include/
