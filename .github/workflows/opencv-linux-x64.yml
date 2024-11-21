@@ -60,9 +60,9 @@ jobs:
 
         rm -rf share bin
 
-        tar -zcvf ./* opencv-linux-${{ env.OPENCV_VERSION }}-x64.tgz
+        tar -zcvf ./* ../../opencv-linux-${{ env.OPENCV_VERSION }}-x64.tgz
 
-    - name: upload 
+    - name: upload
       uses: softprops/action-gh-release@v2
       with:
         files: opencv-linux-${{ env.OPENCV_VERSION }}-x64.tgz
