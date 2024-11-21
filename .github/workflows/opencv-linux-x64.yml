@@ -33,7 +33,7 @@ jobs:
 
     - name: make dir
       run: 
-        mkdir build |
+        mkdir build
         cd build
 
     - name: create cmake config
@@ -42,20 +42,20 @@ jobs:
 
     - name: build
       run:
-        make -j4 |
+        make -j4
         make install
 
     - name: compress
       run: 
-        cd install |
+        cd install
 
-        mv include/opencv4/opencv2 include/ |
-        rm -rf include/opencv4 |
+        mv include/opencv4/opencv2 include/
+        rm -rf include/opencv4
 
-        mv lib/opencv4/3rdparty/*.a lib/ |
-        rm -rf lib/cmake |
-        rm -rf lib/opencv4 |
+        mv lib/opencv4/3rdparty/*.a lib/
+        rm -rf lib/cmake
+        rm -rf lib/opencv4
 
-        rm -rf share bin |
+        rm -rf share bin
 
         tar -zcvf ./* opencv-linux-${{ env.OPENCV_VERSION }}-x64.tgz
