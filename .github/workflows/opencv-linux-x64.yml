@@ -51,7 +51,7 @@ jobs:
         cd build
         cd install
 
-        tar -zcvf ./* ../../opencv-linux-${{ env.OPENCV_VERSION }}-x64.tgz
+        tar -zxvf ./* ../../opencv-linux-${{ env.OPENCV_VERSION }}-x64.tgz
 
     - name: upload
       uses: softprops/action-gh-release@v2
