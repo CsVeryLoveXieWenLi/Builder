@@ -1,7 +1,10 @@
 name: Build Crypto++ 8.9.0 Multi-Arch
 
 on:
-  workflow_dispatch: # 在 Actions 页面手动点击运行
+  workflow_dispatch: # 支持手动点击运行
+
+permissions:
+  contents: write # 必须开启，否则无法创建 Release
 
 jobs:
   build:
@@ -10,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 定义编译器和架构的组合
+        # 矩阵组合：2个编译器 x 2种架构 = 4个构建任务
         compiler: [msvc, mingw]
         arch: [x86, x64]
 
@@ -21,54 +24,56 @@ jobs:
           repository: weidai11/cryptopp
           ref: CRYPTOPP_8_9_0
 
-      # --- 环境准备：MSVC ---
+      # --- 1. MSVC 构建逻辑 ---
       - name: Setup MSBuild
         if: matrix.compiler == 'msvc'
         uses: microsoft/setup-msbuild@v2
 
-      # --- 环境准备：MinGW ---
-      - name: Setup MinGW
-        if: matrix.compiler == 'mingw'
-        uses: egor-tensin/setup-gcc@v1
-        with:
-          args: ${{ matrix.arch == 'x86' && '-m32' || '-m64' }}
-
-      # --- 执行编译：MSVC ---
       - name: Build MSVC
         if: matrix.compiler == 'msvc'
         run: |
-          # 映射架构名称：MSBuild 使用 Win32 代表 x86
-          $msvc_arch = if ("${{ matrix.arch }}" -eq "x86") { "Win32" } else { "x64" }
-          msbuild cryptest.sln /t:Rebuild /p:Configuration=Release /p:Platform=$msvc_arch /m
+          # 转换架构名称映射
+          $msvc_plat = if ("${{ matrix.arch }}" -eq "x86") { "Win32" } else { "x64" }
+          # 执行重新生成
+          msbuild cryptest.sln /t:Rebuild /p:Configuration=Release /p:Platform=$msvc_plat /m
+          
+          # 创建输出目录并收集产物
+          mkdir dist
+          # 根据 Crypto++ 默认输出逻辑查找文件
+          if (Test-Path "$msvc_plat/Output/Release/cryptest.exe") { 
+            copy "$msvc_plat/Output/Release/cryptest.exe" "dist/cryptest_msvc_${{ matrix.arch }}.exe" 
+          }
+          if (Test-Path "$msvc_plat/Output/Release/cryptlib.lib") { 
+            copy "$msvc_plat/Output/Release/cryptlib.lib" "dist/cryptopp_msvc_${{ matrix.arch }}.lib" 
+          }
 
-      # --- 执行编译：MinGW ---
+      # --- 2. MinGW (MSYS2) 构建逻辑 ---
+      - name: Setup MSYS2
+        if: matrix.compiler == 'mingw'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.arch == 'x86' && 'MINGW32' || 'MINGW64' }}
+          update: true
+          install: >-
+            make
+            mingw-w64-${{ matrix.arch == 'x86' && 'i686' || 'x86_64' }}-gcc
+            mingw-w64-${{ matrix.arch == 'x86' && 'i686' || 'x86_64' }}-binutils
+
       - name: Build MinGW
         if: matrix.compiler == 'mingw'
-        shell: bash
+        shell: msys2 {0}
         run: |
-          # 根据架构设置编译标志
-          export CXXFLAGS="${{ matrix.arch == 'x86' && '-m32' || '-m64' }} -O3"
-          # 使用 GNUmakefile 编译
-          make -f GNUmakefile -j4
-          # 重命名以防混淆
-          mv cryptest.exe cryptest_${{ matrix.arch }}_mingw.exe
-
-      # --- 整理产物 ---
-      - name: Organize Artifacts
-        shell: bash
-        run: |
+          # 使用 GNUmakefile 编译，开启 O3 优化
+          # 注意：Crypto++ 的 GNUmakefile 会自动处理 SIMD 探测
+          make -f GNUmakefile -j$(nproc) CXXFLAGS="-O3"
+          
+          # 整理产物
           mkdir -p dist
-          if [ "${{ matrix.compiler }}" == "msvc" ]; then
-            # MSVC 的路径通常在 Win32/Output 或 x64/Output
-            PLAT_DIR="${{ matrix.arch == 'x86' && 'Win32' || 'x64' }}"
-            cp "$PLAT_DIR/Output/Release/cryptest.exe" "dist/cryptest_msvc_${{ matrix.arch }}.exe" || true
-            cp "cryptlib.lib" "dist/cryptopp_msvc_${{ matrix.arch }}.lib" || true
-          else
-            cp cryptest_${{ matrix.arch }}_mingw.exe dist/
-            cp libcryptopp.a "dist/libcryptopp_mingw_${{ matrix.arch }}.a" || true
-          fi
+          mv cryptest.exe dist/cryptest_mingw_${{ matrix.arch }}.exe
+          mv libcryptopp.a dist/libcryptopp_mingw_${{ matrix.arch }}.a
 
-      - name: Upload to Workflow Artifacts
+      # --- 3. 暂存产物 ---
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: cryptopp-${{ matrix.compiler }}-${{ matrix.arch }}
@@ -79,20 +84,29 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Download all artifacts
+      - name: Download All Artifacts
         uses: actions/download-artifact@v4
         with:
-          path: all-artifacts
+          path: release-files
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v8.9.0-release
-          name: Crypto++ 8.9.0 (MSVC & MinGW)
+          tag_name: v8.9.0-autobuild
+          name: Crypto++ 8.9.0 原生多平台编译
           body: |
-            自动编译完成。
-            - 包含 MSVC (x86/x64) 静态库与测试程序
-            - 包含 MinGW (x86/x64) 静态库与测试程序
-          files: all-artifacts/**/*
+            这是 Crypto++ 8.9.0 的自动编译版本。
+            
+            **包含内容：**
+            - **MSVC 版**: 使用 Visual Studio 2022 编译，包含 `.lib` 和 `.exe`。
+            - **MinGW 版**: 使用 GCC (MSYS2) 编译，包含 `.a` 和原生 `.exe`。
+            
+            **架构支持：**
+            - x86 (32-bit)
+            - x64 (64-bit)
+          files: |
+            release-files/**/*.exe
+            release-files/**/*.lib
+            release-files/**/*.a
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
