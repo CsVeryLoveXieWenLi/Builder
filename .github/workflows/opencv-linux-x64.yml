@@ -1,112 +1,50 @@
-name: Build Crypto++ 8.9.0 Multi-Arch
+name: Build Crypto++ MSVC (MT & LTO)
 
 on:
-  workflow_dispatch: # 支持手动点击运行
-
-permissions:
-  contents: write # 必须开启，否则无法创建 Release
+  workflow_dispatch: # 手动触发
 
 jobs:
   build:
-    name: ${{ matrix.compiler }} - ${{ matrix.arch }}
     runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # 矩阵组合：2个编译器 x 2种架构 = 4个构建任务
-        compiler: [msvc, mingw]
-        arch: [x86, x64]
 
     steps:
-      - name: Checkout Crypto++
-        uses: actions/checkout@v4
-        with:
-          repository: weidai11/cryptopp
-          ref: CRYPTOPP_8_9_0
+      - name: Get latest Crypto++ tag
+        shell: bash
+        run: |
+          # 获取最新的 tag 名称
+          LATEST_TAG=$(curl -s https://api.github.com/repos/weidai11/cryptopp/tags | jq -r '.[0].name')
+          echo "Selected Tag: $LATEST_TAG"
+          # 克隆指定 tag
+          git clone --depth 1 --branch $LATEST_TAG https://github.com/weidai11/cryptopp.git .
 
-      # --- 1. MSVC 构建逻辑 ---
       - name: Setup MSBuild
-        if: matrix.compiler == 'msvc'
         uses: microsoft/setup-msbuild@v2
 
-      - name: Build MSVC
-        if: matrix.compiler == 'msvc'
+      - name: Build x86 (Release MT + LTO)
         run: |
-          # 转换架构名称映射
-          $msvc_plat = if ("${{ matrix.arch }}" -eq "x86") { "Win32" } else { "x64" }
-          # 执行重新生成
-          msbuild cryptest.sln /t:Rebuild /p:Configuration=Release /p:Platform=$msvc_plat /m
-          
-          # 创建输出目录并收集产物
-          mkdir dist
-          # 根据 Crypto++ 默认输出逻辑查找文件
-          if (Test-Path "$msvc_plat/Output/Release/cryptest.exe") { 
-            copy "$msvc_plat/Output/Release/cryptest.exe" "dist/cryptest_msvc_${{ matrix.arch }}.exe" 
-          }
-          if (Test-Path "$msvc_plat/Output/Release/cryptlib.lib") { 
-            copy "$msvc_plat/Output/Release/cryptlib.lib" "dist/cryptopp_msvc_${{ matrix.arch }}.lib" 
-          }
+          MSBuild cryptest.sln `
+            /maxcpucount:1 `
+            /p:Configuration=Release `
+            /p:Platform="Win32" `
+            /p:RuntimeLibrary=MultiThreaded `
+            /p:WholeProgramOptimization=true `
+            /p:PlatformToolset=v143
 
-      # --- 2. MinGW (MSYS2) 构建逻辑 ---
-      - name: Setup MSYS2
-        if: matrix.compiler == 'mingw'
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{ matrix.arch == 'x86' && 'MINGW32' || 'MINGW64' }}
-          update: true
-          install: >-
-            make
-            mingw-w64-${{ matrix.arch == 'x86' && 'i686' || 'x86_64' }}-gcc
-            mingw-w64-${{ matrix.arch == 'x86' && 'i686' || 'x86_64' }}-binutils
-
-      - name: Build MinGW
-        if: matrix.compiler == 'mingw'
-        shell: msys2 {0}
+      - name: Build x64 (Release MT + LTO)
         run: |
-          # 使用 GNUmakefile 编译，开启 O3 优化
-          # 注意：Crypto++ 的 GNUmakefile 会自动处理 SIMD 探测
-          make -f GNUmakefile -j$(nproc) CXXFLAGS="-O3"
-          
-          # 整理产物
-          mkdir -p dist
-          mv cryptest.exe dist/cryptest_mingw_${{ matrix.arch }}.exe
-          mv libcryptopp.a dist/libcryptopp_mingw_${{ matrix.arch }}.a
+          MSBuild cryptest.sln `
+            /maxcpucount:1 `
+            /p:Configuration=Release `
+            /p:Platform="x64" `
+            /p:RuntimeLibrary=MultiThreaded `
+            /p:WholeProgramOptimization=true `
+            /p:PlatformToolset=v143
 
-      # --- 3. 暂存产物 ---
-      - name: Upload Artifact
+      - name: Archive Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: cryptopp-${{ matrix.compiler }}-${{ matrix.arch }}
-          path: dist/*
-
-  release:
-    name: Create GitHub Release
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download All Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: release-files
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v8.9.0-autobuild
-          name: Crypto++ 8.9.0 原生多平台编译
-          body: |
-            这是 Crypto++ 8.9.0 的自动编译版本。
-            
-            **包含内容：**
-            - **MSVC 版**: 使用 Visual Studio 2022 编译，包含 `.lib` 和 `.exe`。
-            - **MinGW 版**: 使用 GCC (MSYS2) 编译，包含 `.a` 和原生 `.exe`。
-            
-            **架构支持：**
-            - x86 (32-bit)
-            - x64 (64-bit)
-          files: |
-            release-files/**/*.exe
-            release-files/**/*.lib
-            release-files/**/*.a
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: cryptopp-msvc-mt-lto
+          path: |
+            Win32/Output/Release/*.lib
+            x64/Output/Release/*.lib
+            *.h
